@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Diagnostics;
 using System.Security.Cryptography;
+using System.Threading;
 
 namespace GvClientAccess
 {
@@ -50,10 +51,24 @@ namespace GvClientAccess
             return Convert.ToBase64String(hashValue);
         }
 
+        delegate void MyDelegate();
+        delegate void DeviceInfoDelegate(DeviceInfo di);
+        XmlReader reader;
+        Thread receiver;
+        TcpClient client;
+
+        class DeviceInfo
+        {
+            public String Name;
+            public String Param;
+            public String Value;
+            public int Verb;
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             Trace.WriteLine("Connecting....");
-            TcpClient client = new TcpClient("192.168.0.124", 3557);
+            client = new TcpClient("192.168.0.124", 3557);
             XmlWriterSettings xws = new XmlWriterSettings();
             xws.OmitXmlDeclaration = true;
             xws.Encoding = new UTF8Encoding(false);
@@ -68,7 +83,7 @@ namespace GvClientAccess
 
             XmlReaderSettings xrs = new XmlReaderSettings();
             xrs.ConformanceLevel = ConformanceLevel.Fragment;
-            XmlReader reader = XmlReader.Create(client.GetStream(), xrs);
+            reader = XmlReader.Create(client.GetStream(), xrs);
             reader.Read();
             Debug.Assert(reader.Name == "LoginResult" && reader["Status"] == "200" && reader["Message"]=="OK");
             writer.WriteStartElement("InitControlConnection");
@@ -83,11 +98,58 @@ namespace GvClientAccess
 
             reader.Read();
             MessageBox.Show("Connected!! [" + reader.Name + "]");
+            receiver = new Thread(new ThreadStart(ReceiveThread));
+            receiver.Start();
+        }
+
+        void OnDeviceInfo(DeviceInfo di)
+        {
+            Trace.WriteLine("DeviceInfo: " + di.Name + ", " + di.Param + "=" + di.Value + ", Verb: " + Convert.ToString(di.Verb));
+        }
+        
+        void ReceiveThread()
+        {
+            try
+            {
+                Trace.WriteLine("ReceiveThread().1");
+                while (!reader.EOF)
+                {
+                    reader.Read();
+                    if (reader.Name == "DeviceInfo")
+                    {
+                        DeviceInfo di = new DeviceInfo();
+                        di.Name = reader["Name"];
+                        di.Param = reader["Param"];
+                        di.Value = reader["Value"];
+                        di.Verb = Convert.ToInt32(reader["Verb"]);
+                        this.Invoke((DeviceInfoDelegate) OnDeviceInfo, di);
+                    }
+                }
+                Trace.WriteLine("ReceiveThread().2");
+            }
+            catch(ThreadAbortException err)
+            {
+                Trace.WriteLine("ReceiveThread() aborted: " + err);
+            }
+        }
+
+        void Test2()
+        {
+            MessageBox.Show("Delegate!!");
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Trace.WriteLine("Closing...");
+            if (receiver != null)
+            {
+                receiver.Abort();
+            }
         }
     }
 }
