@@ -24,10 +24,14 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Threading;
 
+using Microsoft.Win32;
+
 namespace GvClientAccess
 {
     public partial class GvClientForm : Form
     {
+        RegistryKey rkey;
+
         public GvClientForm()
         {
             InitializeComponent();
@@ -35,6 +39,11 @@ namespace GvClientAccess
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            rkey = Registry.CurrentUser.CreateSubKey("Software\\GeniusVision\\Sample");
+            edRemoteHost.Text = rkey.GetValue("RemoteHost", "192.168.0.124").ToString();
+            edPort.Text = rkey.GetValue("Port", "3557").ToString();
+            edUserName.Text = rkey.GetValue("UserName", "admin").ToString();
+            edPassword.Text = rkey.GetValue("Password", "1234").ToString();
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -85,8 +94,11 @@ namespace GvClientAccess
 
         private void button1_Click(object sender, EventArgs e)
         {
-            addEventDisplay("Connection", "Connecting....");
-            client = new TcpClient("192.168.0.124", 3557);
+            closeAll(true);
+            rkey.SetValue("RemoteHost", edRemoteHost.Text);
+
+            addEventDisplay("Connection", "Connecting to remote host: " + edRemoteHost.Text + ":");
+            client = new TcpClient(edRemoteHost.Text, Convert.ToInt32(edPort.Text));
             XmlWriterSettings xws = new XmlWriterSettings();
             xws.OmitXmlDeclaration = true;
             xws.Encoding = new UTF8Encoding(false);
@@ -107,8 +119,8 @@ namespace GvClientAccess
             writer.WriteStartElement("InitControlConnection");
             writer.WriteAttributeString("Cookie", Convert.ToString(DateTime.Now.ToFileTime()));
             writer.WriteStartElement("Com_LoginRequest");
-            writer.WriteAttributeString("UserName", "admin");
-            writer.WriteAttributeString("Password", GetSHA1("1234"));
+            writer.WriteAttributeString("UserName", edUserName.Text);
+            writer.WriteAttributeString("Password", GetSHA1(edPassword.Text));
             writer.WriteAttributeString("ClientVersion", "1");
             writer.WriteEndElement();
             writer.WriteEndElement();
@@ -156,23 +168,43 @@ namespace GvClientAccess
             }
         }
 
-        void Test2()
-        {
-            MessageBox.Show("Delegate!!");
-        }
-
         private void button2_Click(object sender, EventArgs e)
         {
             this.Close();
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        void closeAll(bool show)
         {
             Trace.WriteLine("Closing...");
             if (receiver != null)
             {
+                if (show)
+                {
+                    addEventDisplay("Thread", "Waiting thread to terminate...");
+                }
                 receiver.Abort();
+               receiver.Join();
+               receiver = null;
             }
+            if (client != null)
+            {
+                if (show)
+                {
+                    addEventDisplay("Thread", "Waiting connecting to terminate...");
+                }
+                client.Close();
+                client = null;
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            closeAll(false);
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
