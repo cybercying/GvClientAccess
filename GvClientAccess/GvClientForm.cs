@@ -3,6 +3,10 @@
  * 
  * Genius Vision NVR/CMS Client XML Communication Protocol Example.
  * 
+ * PLEASE NOTE: This sample code is by-no-means production code, but only used as a 
+ * demonstration regarding how to establishing XML communication with Genius Vision 
+ * NVR/CMS products. Therefore no warranty is provided. Use on your own risk.
+ * 
  * For more information about Genius Vision products, visit http://geniusvision.net/
  * 
  * This source code is licensed under LGPL. (http://www.gnu.org/copyleft/lesser.html)
@@ -71,9 +75,11 @@ namespace GvClientAccess
 
         delegate void MyDelegate();
         delegate void DeviceInfoDelegate(DeviceInfo di);
+        delegate void EventDisplayDelegate(String type, String detail);
         XmlReader reader;
         Thread receiver;
         TcpClient client;
+        XmlWriter writer;
 
         class DeviceInfo
         {
@@ -103,7 +109,7 @@ namespace GvClientAccess
             xws.OmitXmlDeclaration = true;
             xws.Encoding = new UTF8Encoding(false);
             xws.ConformanceLevel = ConformanceLevel.Fragment;
-            XmlWriter writer = XmlWriter.Create(client.GetStream(), xws);            
+            writer = XmlWriter.Create(client.GetStream(), xws);            
             writer.WriteStartElement("Login");
             writer.WriteAttributeString("UserName", "Handshake");
             writer.WriteAttributeString("Password", "7157d7fa-5f8b-44eb-946c-e05940fa3b0e");
@@ -127,9 +133,16 @@ namespace GvClientAccess
             writer.Flush();
 
             reader.Read();
-            addEventDisplay("Connection", "Connected and authorized");
-            receiver = new Thread(new ThreadStart(ReceiveThread));
-            receiver.Start();
+            if (reader.Name == "UserAccess")
+            {
+                if (reader["AccessDenied"] != "Y")
+                {
+                    addEventDisplay("Connection", "Connected and authorized");
+                    receiver = new Thread(new ThreadStart(ReceiveThread));
+                    receiver.Start();
+                }
+                btnQueryAll.Enabled = true;
+            }
         }
 
         void OnDeviceInfo(DeviceInfo di)
@@ -156,6 +169,10 @@ namespace GvClientAccess
                                 di.Value = reader["Value"];
                                 di.Verb = Convert.ToInt32(reader["Verb"]);
                                 this.Invoke((DeviceInfoDelegate)OnDeviceInfo, di);
+                            }
+                            else if (reader.Name == "DataEntry")
+                            {
+                                this.Invoke((EventDisplayDelegate)addEventDisplay, "DataEntry", "Type: " + reader["Type"]);
                             }
                             break;
                     }
@@ -205,6 +222,16 @@ namespace GvClientAccess
         private void label3_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnQueryAll_Click(object sender, EventArgs e)
+        {
+            writer.WriteStartElement("QueryDataEntry");
+            writer.WriteStartElement("QEntry");
+            writer.WriteAttributeString("Options", ":all_hdr:dev_info:");
+            writer.WriteEndElement();
+            writer.WriteEndElement();
+            writer.Flush();
         }
     }
 }

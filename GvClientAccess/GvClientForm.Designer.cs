@@ -47,6 +47,7 @@
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
             this.edPort = new System.Windows.Forms.TextBox();
+            this.btnQueryAll = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -91,6 +92,7 @@
             // 
             this.flowLayoutPanel1.Controls.Add(this.btnConnect);
             this.flowLayoutPanel1.Controls.Add(this.button2);
+            this.flowLayoutPanel1.Controls.Add(this.btnQueryAll);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 351);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
@@ -251,6 +253,17 @@
             this.edPort.Size = new System.Drawing.Size(77, 22);
             this.edPort.TabIndex = 2;
             // 
+            // btnQueryAll
+            // 
+            this.btnQueryAll.Enabled = false;
+            this.btnQueryAll.Location = new System.Drawing.Point(171, 9);
+            this.btnQueryAll.Name = "btnQueryAll";
+            this.btnQueryAll.Size = new System.Drawing.Size(75, 23);
+            this.btnQueryAll.TabIndex = 1;
+            this.btnQueryAll.Text = "Initial Query";
+            this.btnQueryAll.UseVisualStyleBackColor = true;
+            this.btnQueryAll.Click += new System.EventHandler(this.btnQueryAll_Click);
+            // 
             // GvClientForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -294,6 +307,7 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox edPort;
+        private System.Windows.Forms.Button btnQueryAll;
 
     }
 }
