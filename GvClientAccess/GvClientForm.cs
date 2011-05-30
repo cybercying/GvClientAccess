@@ -50,16 +50,6 @@ namespace GvClientAccess
             edPassword.Text = rkey.GetValue("Password", "1234").ToString();
         }
 
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
         private static string GetSHA1(string text)
         {
             UTF8Encoding UE = new UTF8Encoding();
@@ -102,6 +92,9 @@ namespace GvClientAccess
         {
             closeAll(true);
             rkey.SetValue("RemoteHost", edRemoteHost.Text);
+            rkey.SetValue("Port", edPort.Text);
+            rkey.SetValue("UserName", edUserName.Text);
+            rkey.SetValue("Password", edPassword.Text);
 
             addEventDisplay("Connection", "Connecting to remote host: " + edRemoteHost.Text + ":");
             client = new TcpClient(edRemoteHost.Text, Convert.ToInt32(edPort.Text));
@@ -142,6 +135,10 @@ namespace GvClientAccess
                     receiver.Start();
                 }
                 btnQueryAll.Enabled = true;
+            }
+            else
+            {
+                addEventDisplay("Connection", "Access denied!");
             }
         }
 
@@ -217,11 +214,6 @@ namespace GvClientAccess
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             closeAll(false);
-        }
-
-        private void label3_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void btnQueryAll_Click(object sender, EventArgs e)

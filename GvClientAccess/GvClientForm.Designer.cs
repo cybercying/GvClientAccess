@@ -75,7 +75,6 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 87.92651F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(687, 394);
             this.tableLayoutPanel1.TabIndex = 0;
-            this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
             // 
             // label1
             // 
@@ -86,7 +85,6 @@
             this.label1.Size = new System.Drawing.Size(62, 12);
             this.label1.TabIndex = 1;
             this.label1.Text = "RemoteHost";
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // flowLayoutPanel1
             // 
@@ -150,7 +148,6 @@
             this.label3.Size = new System.Drawing.Size(53, 12);
             this.label3.TabIndex = 3;
             this.label3.Text = "UserName";
-            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // edUserName
             // 
@@ -243,7 +240,6 @@
             this.label5.Size = new System.Drawing.Size(24, 12);
             this.label5.TabIndex = 0;
             this.label5.Text = "Port";
-            this.label5.Click += new System.EventHandler(this.label3_Click);
             // 
             // edPort
             // 
