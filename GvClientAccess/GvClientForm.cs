@@ -168,7 +168,9 @@ namespace GvClientAccess
             // Type == GV_OpenChannel
             public String ChannelName;
             public String Driver;
-            public String Xml;
+            public String Description;
+            public String DomainName, IPAddress, IPPort, Channel, UserName, Password, Options, AudioInput, VideoInput;
+            public bool UncondRec, Disabled;
 
             public ListViewItem lvi;
 
@@ -222,6 +224,25 @@ namespace GvClientAccess
                     if (reader.ReadToDescendant("CameraConfig"))
                     {
                         ent.Driver = reader["Driver"];
+                        ent.Description = reader["Description"];
+                        ent.DomainName = reader["DomainName"];
+                        ent.IPAddress = reader["IPAddress"];
+                        ent.IPPort = reader["IPPort"];
+                        if (ent.IPPort == null)
+                        {
+                            ent.IPPort = "80";
+                        }
+                        ent.Channel = reader["Channel"];
+                        ent.UncondRec = reader["UncondRec"] == "Y";
+                        ent.Disabled = reader["Disabled"] == "Y";
+                        ent.Options = reader["Options"];
+                        ent.AudioInput = reader["AudioInput"];
+                        ent.VideoInput = reader["VideoInput"];
+                        if (reader.ReadToDescendant("HttpAuthorization"))
+                        {
+                            ent.UserName = reader["UserName"];
+                            ent.Password = reader["Password"];
+                        }
                     }
                 }
                 updateEntry(ent);
@@ -374,7 +395,40 @@ namespace GvClientAccess
                         lv2.SubItems.Add(ent.diMap[s]);
                     }
                 }
+                edDriver.Text = ent.Driver;
+                edChannelName.Text = ent.ChannelName;
+                edDescription.Text = ent.Description;
+                edDomainName.Text = ent.DomainName;
+                edIPAddress.Text = ent.IPAddress;
+                edIPPort.Text = ent.IPPort;
+                edCamUserName.Text = ent.UserName;
+                edCamPassword.Text = ent.Password;
+                edChannel.Text = ent.Channel;
+                edUncondRec.Checked = ent.UncondRec;
+                edCamDisabled.Checked = ent.Disabled;
             }
+        }
+
+        private void btnUpdateChannel_Click(object sender, EventArgs e)
+        {
+            writer.WriteStartElement("ConfigureChannel");
+            writer.WriteAttributeString("Name", edChannelName.Text);
+            writer.WriteStartElement("CameraConfig");
+            writer.WriteAttributeString("Driver", edDriver.Text);
+            writer.WriteAttributeString("Description", edDescription.Text);
+            writer.WriteAttributeString("DomainName", edDomainName.Text);
+            writer.WriteAttributeString("IPAddress", edIPAddress.Text);
+            writer.WriteAttributeString("IPPort", edIPPort.Text);
+            writer.WriteAttributeString("Channel", edChannel.Text);
+            writer.WriteAttributeString("UncondRec", edUncondRec.Checked ? "Y" : "N");
+            writer.WriteAttributeString("Disabled", edCamDisabled.Checked ? "Y" : "N");
+            writer.WriteStartElement("HttpAuthorization");
+            writer.WriteAttributeString("UserName", edCamUserName.Text);
+            writer.WriteAttributeString("Password", edCamPassword.Text);
+            writer.WriteEndElement();
+            writer.WriteEndElement();
+            writer.WriteEndElement();
+            writer.Flush();
         }
     }
 }
