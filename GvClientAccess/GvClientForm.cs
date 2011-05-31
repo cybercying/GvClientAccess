@@ -128,8 +128,14 @@ namespace GvClientAccess
             reader.Read();
             if (reader.Name == "UserAccess")
             {
+                reader.Skip();
                 if (reader["AccessDenied"] != "Y")
                 {
+                    DataEntry s = new DataEntry();
+                    s.Key = "Ch:/Sys";
+                    s.Type = "SysChannel"; // special object
+                    updateEntry(s);
+
                     addEventDisplay("Connection", "Connected and authorized");
                     receiver = new Thread(new ThreadStart(ReceiveThread));
                     receiver.Start();
@@ -145,31 +151,146 @@ namespace GvClientAccess
         void OnDeviceInfo(DeviceInfo di)
         {
             addEventDisplay("DeviceInfo", "[" + di.Name + "] " + di.Param + "=>" + di.Value + ", Verb: " + Convert.ToString(di.Verb));
+            String Key = "Ch:" + di.Name;
+            if (EntryMap.ContainsKey(Key))
+            {
+                DataEntry ent = EntryMap[Key];
+                ent.handleDeviceInfo(di);
+            } // otherwise just drop it
+        }
+
+        class DataEntry
+        {
+            public String Key;
+            public String Type;
+            public bool IsDeleted;
+
+            // Type == GV_OpenChannel
+            public String ChannelName;
+            public String Driver;
+            public String Xml;
+
+            public ListViewItem lvi;
+
+            public Dictionary<String, String> diMap;
+
+            public void handleDeviceInfo(DeviceInfo di)
+            {
+                if (diMap == null) // lazy creation
+                {
+                    diMap = new Dictionary<string, string>();
+                }
+                if (di.Verb == 0)
+                {
+                    diMap[di.Param] = di.Value;
+                }
+                else if (di.Verb == 1)
+                {
+                    Dictionary<String, String> newMap = new Dictionary<String, String>();
+                    foreach(String s in diMap.Keys)
+                    {
+                        if (!s.StartsWith(di.Param))
+                        {
+                            newMap.Add(s, diMap[s]);
+                        }
+                    }
+                    diMap = newMap; // replace old map
+                }
+            }
+        }
+
+        Dictionary<String, DataEntry> EntryMap = new Dictionary<string,DataEntry>();
+
+        void OnDataEntry()
+        {
+            try
+            {
+                DataEntry ent = new DataEntry();
+                ent.Key = reader["Key2"];
+                ent.Type = reader["Type"];
+                ent.IsDeleted = reader["IsDeleted"] == "Y";
+                //ent.Xml = reader.ReadOuterXml();
+
+                if (ent.Type == "GV_OpenChannel")
+                {
+                    reader.ReadStartElement();
+                    Debug.Assert(reader.Name == "OpenChannel");
+                    // here to read <OpenChannel> data....
+                    ent.ChannelName = reader["Name"];
+                    //addEventDisplay("DataEntry", "Type: " + ent.Type + ", inner: " + reader.Name + ", Key: " + ent.Key);
+                    //Trace.WriteLine(ent.Type + ", xml: " + reader.Name + ", outer: " + ent.Xml);
+                    if (reader.ReadToDescendant("CameraConfig"))
+                    {
+                        ent.Driver = reader["Driver"];
+                    }
+                }
+                updateEntry(ent);
+            }
+            catch (NullReferenceException err)
+            {
+                Trace.WriteLine(err.ToString());
+            }
+        }
+
+        void updateEntry(DataEntry ent)
+        {
+            DataEntry old;
+            if (EntryMap.ContainsKey(ent.Key))
+            {
+                old = EntryMap[ent.Key];
+                if (old.lvi != null)
+                {
+                    old.lvi.Remove();
+                    old.lvi = null;
+                }
+                if (ent.IsDeleted)
+                {
+                    EntryMap.Remove(ent.Key);
+                    return;
+                }
+            }
+            if (ent.IsDeleted) return;
+            if (ent.Type == "GV_OpenChannel")
+            {
+                ent.lvi = lvChannels.Items.Add(ent.ChannelName);
+                ent.lvi.SubItems.Add("");
+                ent.lvi.SubItems.Add(ent.Driver);
+                ent.lvi.Tag = ent;
+            }
+            else if (ent.Type == "SysChannel")
+            {
+                ent.lvi = lvChannels.Items.Add("(System)");
+                ent.lvi.Tag = ent;
+            }
+            EntryMap[ent.Key] = ent;
         }
         
         void ReceiveThread()
         {
             try
             {
-                Trace.WriteLine("ReceiveThread().1");
-                while (!reader.EOF)
+                Trace.WriteLine("ReceiveThread...");
+                while (reader.Read())
                 {
-                    reader.Read();
                     switch (reader.NodeType)
                     {
                         case XmlNodeType.Element:
-                            if (reader.Name == "DeviceInfo")
+                            if (reader.Depth == 0)
                             {
-                                DeviceInfo di = new DeviceInfo();
-                                di.Name = reader["Name"];
-                                di.Param = reader["Param"];
-                                di.Value = reader["Value"];
-                                di.Verb = Convert.ToInt32(reader["Verb"]);
-                                this.Invoke((DeviceInfoDelegate)OnDeviceInfo, di);
-                            }
-                            else if (reader.Name == "DataEntry")
-                            {
-                                this.Invoke((EventDisplayDelegate)addEventDisplay, "DataEntry", "Type: " + reader["Type"]);
+                                //Trace.WriteLine("Receive element: " + reader.Name);
+                                if (reader.Name == "DeviceInfo")
+                                {
+                                    DeviceInfo di = new DeviceInfo();
+                                    di.Name = reader["Name"];
+                                    di.Param = reader["Param"];
+                                    di.Value = reader["Value"];
+                                    di.Verb = Convert.ToInt32(reader["Verb"]);
+                                    this.Invoke((DeviceInfoDelegate)OnDeviceInfo, di);
+                                }
+                                else if (reader.Name == "DataEntry")
+                                {
+                                    this.Invoke((MyDelegate)OnDataEntry);
+                                }
                             }
                             break;
                     }
@@ -196,7 +317,7 @@ namespace GvClientAccess
                 {
                     addEventDisplay("Thread", "Waiting thread to terminate...");
                 }
-                receiver.Abort();
+               receiver.Abort();
                receiver.Join();
                receiver = null;
             }
@@ -209,6 +330,12 @@ namespace GvClientAccess
                 client.Close();
                 client = null;
             }
+            if (show)
+            {
+                lvChannels.Items.Clear();
+                lvDeviceInfo.Items.Clear();
+            }
+            EntryMap.Clear();
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -224,6 +351,30 @@ namespace GvClientAccess
             writer.WriteEndElement();
             writer.WriteEndElement();
             writer.Flush();
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            listView1.Items.Clear();
+        }
+
+        private void lvChannels_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lvDeviceInfo.Items.Clear();
+            if (lvChannels.SelectedItems.Count > 0)
+            {
+                ListViewItem lvi = lvChannels.SelectedItems[0];
+                DataEntry ent = (DataEntry)lvi.Tag;
+                lvDeviceInfo.Items.Clear();
+                if (ent.diMap != null)
+                {
+                    foreach (String s in ent.diMap.Keys)
+                    {
+                        ListViewItem lv2 = lvDeviceInfo.Items.Add(s);
+                        lv2.SubItems.Add(ent.diMap[s]);
+                    }
+                }
+            }
         }
     }
 }
