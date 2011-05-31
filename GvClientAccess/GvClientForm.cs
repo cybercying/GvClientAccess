@@ -260,7 +260,17 @@ namespace GvClientAccess
             {
                 ParseDataEntry();
             }
+            else
+            {
+                Trace.WriteLine("ParseTopLevelXml(): Unhandled top-level command: " + reader.Name);
+            }
         }
+
+        String mAuthKey;
+        TcpClient mqclient;
+        XmlWriter mqwriter;
+        XmlReader mqreader;
+        Thread mqthread;
         
         void ReceiveThread()
         {
@@ -301,7 +311,6 @@ namespace GvClientAccess
                 reader.Read();
                 if (reader.Name == "UserAccess")
                 {
-                    reader.Skip();
                     if (reader["AccessDenied"] != "Y")
                     {
                         DataEntry s = new DataEntry();
@@ -311,6 +320,28 @@ namespace GvClientAccess
 
                         addEventDisplay("Connection", "Connected and authorized");
                     }
+                    mAuthKey = reader["AuthorizeKey"];
+                    Trace.WriteLine("MQConn.1");
+                    mqclient = new TcpClient(edRemoteHost.Text, Convert.ToInt32(edPort.Text));
+                    addEventDisplay("MQConnection", "Connected to remote host: " + edRemoteHost.Text + ":" + edPort.Text);
+                    mqwriter = XmlWriter.Create(mqclient.GetStream(), xws);
+                    mqwriter.WriteStartElement("Login");
+                    mqwriter.WriteAttributeString("UserName", "TestUser");
+                    mqwriter.WriteAttributeString("Password", mAuthKey);
+                    mqwriter.WriteAttributeString("Pin", "CxClient");
+                    mqwriter.WriteEndElement();
+                    mqwriter.Flush();
+                    Trace.WriteLine("MQConn.2");
+                    mqreader = XmlReader.Create(mqclient.GetStream(), xrs);
+                    Trace.WriteLine("MQConn.3");
+                    mqreader.Read();
+                    Trace.WriteLine("MQConn.4: " + mqreader["Status"]);
+                    if (mqreader["Status"] == "200") // success
+                    {
+                        mqthread = new Thread(new ThreadStart(MQReadThread));
+                        mqthread.Start();
+                    }
+                    
                     btnQueryAll.Enabled = true;
                     while (reader.Read())
                     {
@@ -337,6 +368,31 @@ namespace GvClientAccess
             }
         }
 
+        void MQReadThread()
+        {
+            try
+            {
+                Trace.WriteLine("MQReceiveThread.1");
+                while (mqreader.Read())
+                {
+                    switch (mqreader.NodeType)
+                    {
+                        case XmlNodeType.Element:
+                            if (mqreader.Depth == 0)
+                            {
+                                this.Invoke((MyDelegate)ParseTopLevelXmlMQ);
+                            }
+                            break;
+                    }
+                }
+                Trace.WriteLine("MQReceiveThread().2");
+            }
+            catch(Exception err)
+            {
+                Trace.WriteLine("MQReceiveThread() aborted: " + err);
+            }
+        }
+
         private void button2_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -355,6 +411,16 @@ namespace GvClientAccess
                 receiver.Join(500);
                 receiver = null;
             }
+            if (mqthread != null)
+            {
+                if (show)
+                {
+                    addEventDisplay("Thread", "Waiting MQ thread to terminate...");
+                }
+                mqthread.Abort();
+                mqthread.Join(500);
+                mqthread = null;
+            }
             if (client != null)
             {
                 if (show)
@@ -363,6 +429,15 @@ namespace GvClientAccess
                 }
                 client.Close();
                 client = null;
+            }
+            if (mqclient != null)
+            {
+                if (show)
+                {
+                    addEventDisplay("Thread", "Waiting MQ connecting to terminate...");
+                }
+                mqclient.Close();
+                mqclient = null;
             }
             if (show)
             {
@@ -442,6 +517,148 @@ namespace GvClientAccess
             writer.WriteEndElement();
             writer.WriteEndElement();
             writer.Flush();
+        }
+
+        private void tcMain_Selected(object sender, TabControlEventArgs e)
+        {
+            if (e.TabPage == tbMediaQuery)
+            {
+                if (edQueryType.SelectedIndex == -1)
+                {
+                    edQueryType.SelectedIndex = 0;
+                }
+                edQueryChannel.Items.Clear();
+                foreach (String s in EntryMap.Keys)
+                {
+                    if (s.StartsWith("Ch:"))
+                    {
+                        DataEntry ent = EntryMap[s];
+                        if (ent.Type == "GV_OpenChannel")
+                        {
+                            edQueryChannel.Items.Add(ent.ChannelName);
+                        }
+                    }
+                }
+                if (edQueryChannel.SelectedIndex == -1 && edQueryChannel.Items.Count > 0)
+                {
+                    edQueryChannel.SelectedIndex = 0;
+                }
+            }
+        }
+
+        String mMediaQueryCookie;
+
+        private void btnQuery_Click(object sender, EventArgs e)
+        {
+            if (edQueryChannel.SelectedItem == null)
+            {
+                MessageBox.Show("Must select a channel!");
+                return;
+            }
+            lvEvent.Items.Clear();
+//            MessageBox.Show("StartTime: " + Convert.ToString(dtStartTime.Value.ToFileTimeUtc()));
+            mqwriter.WriteStartElement("MediaQuery");
+            mqwriter.WriteAttributeString("Id", "Q001"); // Q001 is an internal identifier for this query session
+            mqwriter.WriteAttributeString("Channel", edQueryChannel.SelectedItem.ToString());
+            mMediaQueryCookie = Convert.ToString(DateTime.Now.ToFileTimeUtc()); // cookie is to identify query for current request.
+            mqwriter.WriteAttributeString("Cookie", mMediaQueryCookie);
+            mqwriter.WriteAttributeString("Type", "Event");
+            mqwriter.WriteAttributeString("Time", Convert.ToString(dtStartTime.Value.ToFileTimeUtc()));
+            mqwriter.WriteAttributeString("EndTime", Convert.ToString(dtEndTime.Value.ToFileTimeUtc()));
+            mqwriter.WriteEndElement();
+            mqwriter.Flush();
+            Trace.WriteLine("MediaQuery.1");
+        }
+
+        void fetchMediaQuery()
+        {
+            mqwriter.WriteStartElement("Fetch");
+            mqwriter.WriteAttributeString("Id", "Q001");
+            mqwriter.WriteAttributeString("Cookie", mMediaQueryCookie);
+            mqwriter.WriteEndElement();
+            mqwriter.Flush();
+        }
+
+        void ParseQueryResult()
+        {
+            Trace.WriteLine("MediaQuery.2");
+            String Id = mqreader["Id"];
+            if (Id == "Q001") // this is for MediaQuery tab
+            {
+                Trace.WriteLine("MediaQuery.3");
+                if (mMediaQueryCookie == mqreader["Cookie"]) // check to discard network residue
+                {
+                    Trace.WriteLine("MediaQuery.4");
+                    if (mqreader["Valid"] == "Y") // checks for validity
+                    {
+                        Trace.WriteLine("MediaQuery.5");
+                        fetchMediaQuery();
+                    }
+                }
+            }
+        }
+
+        String humanTime(String str)
+        {
+            return DateTime.FromFileTimeUtc(Convert.ToInt64(str)).ToString();
+        }
+
+        void ParseMediaMetadata()
+        {
+            Trace.WriteLine("MediaQuery.6");
+            String Id = mqreader["Id"];
+            if (Id == "Q001") // this is for MediaQuery tab
+            {
+                Trace.WriteLine("MediaQuery.7");
+                if (mMediaQueryCookie == mqreader["Cookie"]) // check to discard network residue
+                {
+                    Trace.WriteLine("MediaQuery.8");
+                    bool isEof = mqreader["IsEOF"] == "Y";
+                    bool exitLoop = false;
+                    while (!exitLoop && mqreader.Read())
+                    {
+                        Trace.WriteLine(mqreader.NodeType);
+                        switch (mqreader.NodeType)
+                        {
+                            case XmlNodeType.Element:
+                                if (mqreader.Name == "ClipIndex")
+                                {
+                                    ListViewItem lvi = lvEvent.Items.Add(mqreader["Type"]);
+                                    lvi.SubItems.Add(humanTime(mqreader["StartTime"]));
+                                    lvi.SubItems.Add(humanTime(mqreader["EndTime"]));
+                                }
+                                break;
+
+                            case XmlNodeType.EndElement:
+                                if (mqreader.Name == "MediaMetadata")
+                                {
+                                    if (!isEof)
+                                    {
+                                        fetchMediaQuery(); // continue to fetch next batch of data...
+                                    }
+                                    exitLoop = true;
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        void ParseTopLevelXmlMQ()
+        {
+            if (mqreader.Name == "QueryResult")
+            {
+                ParseQueryResult();
+            }
+            else if (mqreader.Name == "MediaMetadata")
+            {
+                ParseMediaMetadata();
+            }
+            else
+            {
+                Trace.WriteLine("ParseTopLevelXmlMQ(): Unhandled top-level command: " + mqreader.Name);
+            }
         }
     }
 }

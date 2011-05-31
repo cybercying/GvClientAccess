@@ -49,7 +49,7 @@
             this.btnConnect = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.btnQueryAll = new System.Windows.Forms.Button();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tcMain = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -88,11 +88,30 @@
             this.edCamDisabled = new System.Windows.Forms.CheckBox();
             this.btnUpdateChannel = new System.Windows.Forms.Button();
             this.label14 = new System.Windows.Forms.Label();
+            this.tbMediaQuery = new System.Windows.Forms.TabPage();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.label17 = new System.Windows.Forms.Label();
+            this.dtEndTime = new System.Windows.Forms.DateTimePicker();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.dtStartTime = new System.Windows.Forms.DateTimePicker();
+            this.edQueryType = new System.Windows.Forms.ComboBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.edQueryChannel = new System.Windows.Forms.ComboBox();
+            this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.tabControl3 = new System.Windows.Forms.TabControl();
+            this.lvEvent = new System.Windows.Forms.ListView();
+            this.columnHeader9 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader10 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader11 = new System.Windows.Forms.ColumnHeader();
+            this.btnQuery = new System.Windows.Forms.Button();
+            this.columnHeader12 = new System.Windows.Forms.ColumnHeader();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
-            this.tabControl1.SuspendLayout();
+            this.tcMain.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -105,6 +124,13 @@
             this.flowLayoutPanel5.SuspendLayout();
             this.flowLayoutPanel4.SuspendLayout();
             this.flowLayoutPanel6.SuspendLayout();
+            this.tbMediaQuery.SuspendLayout();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
+            this.tableLayoutPanel3.SuspendLayout();
+            this.tabPage6.SuspendLayout();
+            this.tabControl3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -324,16 +350,18 @@
             this.btnQueryAll.UseVisualStyleBackColor = true;
             this.btnQueryAll.Click += new System.EventHandler(this.btnQueryAll_Click);
             // 
-            // tabControl1
+            // tcMain
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(687, 411);
-            this.tabControl1.TabIndex = 2;
+            this.tcMain.Controls.Add(this.tabPage1);
+            this.tcMain.Controls.Add(this.tabPage2);
+            this.tcMain.Controls.Add(this.tbMediaQuery);
+            this.tcMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tcMain.Location = new System.Drawing.Point(0, 0);
+            this.tcMain.Name = "tcMain";
+            this.tcMain.SelectedIndex = 0;
+            this.tcMain.Size = new System.Drawing.Size(687, 411);
+            this.tcMain.TabIndex = 2;
+            this.tcMain.Selected += new System.Windows.Forms.TabControlEventHandler(this.tcMain_Selected);
             // 
             // tabPage1
             // 
@@ -728,13 +756,214 @@
             this.label14.TabIndex = 4;
             this.label14.Text = "Channel";
             // 
+            // tbMediaQuery
+            // 
+            this.tbMediaQuery.Controls.Add(this.splitContainer2);
+            this.tbMediaQuery.Location = new System.Drawing.Point(4, 22);
+            this.tbMediaQuery.Name = "tbMediaQuery";
+            this.tbMediaQuery.Padding = new System.Windows.Forms.Padding(3);
+            this.tbMediaQuery.Size = new System.Drawing.Size(679, 385);
+            this.tbMediaQuery.TabIndex = 2;
+            this.tbMediaQuery.Text = "MediaQuery";
+            this.tbMediaQuery.UseVisualStyleBackColor = true;
+            // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer2.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer2.Name = "splitContainer2";
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.tableLayoutPanel3);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.tabControl3);
+            this.splitContainer2.Size = new System.Drawing.Size(673, 379);
+            this.splitContainer2.SplitterDistance = 288;
+            this.splitContainer2.TabIndex = 0;
+            // 
+            // tableLayoutPanel3
+            // 
+            this.tableLayoutPanel3.ColumnCount = 2;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 29.51389F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70.48611F));
+            this.tableLayoutPanel3.Controls.Add(this.label17, 0, 2);
+            this.tableLayoutPanel3.Controls.Add(this.dtEndTime, 1, 1);
+            this.tableLayoutPanel3.Controls.Add(this.label16, 0, 0);
+            this.tableLayoutPanel3.Controls.Add(this.label15, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this.dtStartTime, 1, 0);
+            this.tableLayoutPanel3.Controls.Add(this.edQueryType, 1, 2);
+            this.tableLayoutPanel3.Controls.Add(this.label18, 0, 3);
+            this.tableLayoutPanel3.Controls.Add(this.edQueryChannel, 1, 3);
+            this.tableLayoutPanel3.Controls.Add(this.btnQuery, 1, 5);
+            this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
+            this.tableLayoutPanel3.RowCount = 6;
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 92.08443F));
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 33F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(288, 379);
+            this.tableLayoutPanel3.TabIndex = 0;
+            // 
+            // label17
+            // 
+            this.label17.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(21, 65);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(61, 12);
+            this.label17.TabIndex = 5;
+            this.label17.Text = "Query Type";
+            // 
+            // dtEndTime
+            // 
+            this.dtEndTime.CustomFormat = "yyyy/MM/dd  hh:mm:ss";
+            this.dtEndTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtEndTime.Location = new System.Drawing.Point(88, 31);
+            this.dtEndTime.Name = "dtEndTime";
+            this.dtEndTime.Size = new System.Drawing.Size(197, 22);
+            this.dtEndTime.TabIndex = 4;
+            // 
+            // label16
+            // 
+            this.label16.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(29, 8);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(53, 12);
+            this.label16.TabIndex = 2;
+            this.label16.Text = "Start Time";
+            // 
+            // label15
+            // 
+            this.label15.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(31, 36);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(51, 12);
+            this.label15.TabIndex = 1;
+            this.label15.Text = "End Time";
+            // 
+            // dtStartTime
+            // 
+            this.dtStartTime.CustomFormat = "yyyy/MM/dd  hh:mm:ss";
+            this.dtStartTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtStartTime.Location = new System.Drawing.Point(88, 3);
+            this.dtStartTime.Name = "dtStartTime";
+            this.dtStartTime.Size = new System.Drawing.Size(197, 22);
+            this.dtStartTime.TabIndex = 3;
+            // 
+            // edQueryType
+            // 
+            this.edQueryType.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.edQueryType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.edQueryType.FormattingEnabled = true;
+            this.edQueryType.Items.AddRange(new object[] {
+            "Event",
+            "Standard"});
+            this.edQueryType.Location = new System.Drawing.Point(88, 59);
+            this.edQueryType.Name = "edQueryType";
+            this.edQueryType.Size = new System.Drawing.Size(197, 20);
+            this.edQueryType.TabIndex = 6;
+            // 
+            // label18
+            // 
+            this.label18.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(38, 94);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(44, 12);
+            this.label18.TabIndex = 7;
+            this.label18.Text = "Channel";
+            // 
+            // edQueryChannel
+            // 
+            this.edQueryChannel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.edQueryChannel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.edQueryChannel.FormattingEnabled = true;
+            this.edQueryChannel.Location = new System.Drawing.Point(88, 90);
+            this.edQueryChannel.Name = "edQueryChannel";
+            this.edQueryChannel.Size = new System.Drawing.Size(197, 20);
+            this.edQueryChannel.TabIndex = 8;
+            // 
+            // tabPage6
+            // 
+            this.tabPage6.Controls.Add(this.lvEvent);
+            this.tabPage6.Location = new System.Drawing.Point(4, 22);
+            this.tabPage6.Name = "tabPage6";
+            this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage6.Size = new System.Drawing.Size(373, 353);
+            this.tabPage6.TabIndex = 0;
+            this.tabPage6.Text = "Event";
+            this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // tabControl3
+            // 
+            this.tabControl3.Controls.Add(this.tabPage6);
+            this.tabControl3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl3.Location = new System.Drawing.Point(0, 0);
+            this.tabControl3.Name = "tabControl3";
+            this.tabControl3.SelectedIndex = 0;
+            this.tabControl3.Size = new System.Drawing.Size(381, 379);
+            this.tabControl3.TabIndex = 0;
+            // 
+            // lvEvent
+            // 
+            this.lvEvent.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader9,
+            this.columnHeader10,
+            this.columnHeader11,
+            this.columnHeader12});
+            this.lvEvent.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lvEvent.Location = new System.Drawing.Point(3, 3);
+            this.lvEvent.Name = "lvEvent";
+            this.lvEvent.Size = new System.Drawing.Size(367, 347);
+            this.lvEvent.TabIndex = 0;
+            this.lvEvent.UseCompatibleStateImageBehavior = false;
+            this.lvEvent.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader9
+            // 
+            this.columnHeader9.Text = "Event";
+            this.columnHeader9.Width = 57;
+            // 
+            // columnHeader10
+            // 
+            this.columnHeader10.Text = "Start";
+            this.columnHeader10.Width = 141;
+            // 
+            // columnHeader11
+            // 
+            this.columnHeader11.Text = "End";
+            this.columnHeader11.Width = 117;
+            // 
+            // btnQuery
+            // 
+            this.btnQuery.Location = new System.Drawing.Point(88, 349);
+            this.btnQuery.Name = "btnQuery";
+            this.btnQuery.Size = new System.Drawing.Size(75, 23);
+            this.btnQuery.TabIndex = 9;
+            this.btnQuery.Text = "Query";
+            this.btnQuery.UseVisualStyleBackColor = true;
+            this.btnQuery.Click += new System.EventHandler(this.btnQuery_Click);
+            // 
+            // columnHeader12
+            // 
+            this.columnHeader12.Text = "Tag";
+            // 
             // GvClientForm
             // 
             this.AcceptButton = this.btnConnect;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(687, 454);
-            this.Controls.Add(this.tabControl1);
+            this.Controls.Add(this.tcMain);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Name = "GvClientForm";
             this.Text = "GvClient XML Protocol Example";
@@ -747,7 +976,7 @@
             this.flowLayoutPanel3.ResumeLayout(false);
             this.flowLayoutPanel3.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
-            this.tabControl1.ResumeLayout(false);
+            this.tcMain.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -764,6 +993,14 @@
             this.flowLayoutPanel4.PerformLayout();
             this.flowLayoutPanel6.ResumeLayout(false);
             this.flowLayoutPanel6.PerformLayout();
+            this.tbMediaQuery.ResumeLayout(false);
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            this.splitContainer2.ResumeLayout(false);
+            this.tableLayoutPanel3.ResumeLayout(false);
+            this.tableLayoutPanel3.PerformLayout();
+            this.tabPage6.ResumeLayout(false);
+            this.tabControl3.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -790,7 +1027,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox edPort;
         private System.Windows.Forms.Button btnQueryAll;
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl tcMain;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.SplitContainer splitContainer1;
@@ -830,6 +1067,25 @@
         private System.Windows.Forms.Button btnUpdateChannel;
         private System.Windows.Forms.TextBox edChannel;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.TabPage tbMediaQuery;
+        private System.Windows.Forms.SplitContainer splitContainer2;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.DateTimePicker dtStartTime;
+        private System.Windows.Forms.DateTimePicker dtEndTime;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.ComboBox edQueryType;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.ComboBox edQueryChannel;
+        private System.Windows.Forms.TabControl tabControl3;
+        private System.Windows.Forms.TabPage tabPage6;
+        private System.Windows.Forms.ListView lvEvent;
+        private System.Windows.Forms.ColumnHeader columnHeader9;
+        private System.Windows.Forms.ColumnHeader columnHeader10;
+        private System.Windows.Forms.ColumnHeader columnHeader11;
+        private System.Windows.Forms.Button btnQuery;
+        private System.Windows.Forms.ColumnHeader columnHeader12;
 
     }
 }
