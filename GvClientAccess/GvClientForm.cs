@@ -83,9 +83,16 @@ namespace GvClientAccess
 
         void addEventDisplay(String type, String detail)
         {
-            ListViewItem li = listView1.Items.Insert(0, Convert.ToString(eventCount++));
-            li.SubItems.Add(type);
-            li.SubItems.Add(detail);
+            if (InvokeRequired)
+            {
+                Invoke((EventDisplayDelegate)addEventDisplay, type, detail);
+            }
+            else
+            {
+                ListViewItem li = listView1.Items.Insert(0, Convert.ToString(eventCount++));
+                li.SubItems.Add(type);
+                li.SubItems.Add(detail);
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -96,59 +103,11 @@ namespace GvClientAccess
             rkey.SetValue("UserName", edUserName.Text);
             rkey.SetValue("Password", edPassword.Text);
 
-            addEventDisplay("Connection", "Connecting to remote host: " + edRemoteHost.Text + ":");
-            client = new TcpClient(edRemoteHost.Text, Convert.ToInt32(edPort.Text));
-            XmlWriterSettings xws = new XmlWriterSettings();
-            xws.OmitXmlDeclaration = true;
-            xws.Encoding = new UTF8Encoding(false);
-            xws.ConformanceLevel = ConformanceLevel.Fragment;
-            writer = XmlWriter.Create(client.GetStream(), xws);            
-            writer.WriteStartElement("Login");
-            writer.WriteAttributeString("UserName", "Handshake");
-            writer.WriteAttributeString("Password", "7157d7fa-5f8b-44eb-946c-e05940fa3b0e");
-            writer.WriteAttributeString("Pin", "CxClient");
-            writer.WriteEndElement();
-            writer.Flush();
-
-            XmlReaderSettings xrs = new XmlReaderSettings();
-            xrs.ConformanceLevel = ConformanceLevel.Fragment;
-            reader = XmlReader.Create(client.GetStream(), xrs);
-            reader.Read();
-            Debug.Assert(reader.Name == "LoginResult" && reader["Status"] == "200" && reader["Message"]=="OK");
-            writer.WriteStartElement("InitControlConnection");
-            writer.WriteAttributeString("Cookie", Convert.ToString(DateTime.Now.ToFileTime()));
-            writer.WriteStartElement("Com_LoginRequest");
-            writer.WriteAttributeString("UserName", edUserName.Text);
-            writer.WriteAttributeString("Password", GetSHA1(edPassword.Text));
-            writer.WriteAttributeString("ClientVersion", "1");
-            writer.WriteEndElement();
-            writer.WriteEndElement();
-            writer.Flush();
-
-            reader.Read();
-            if (reader.Name == "UserAccess")
-            {
-                reader.Skip();
-                if (reader["AccessDenied"] != "Y")
-                {
-                    DataEntry s = new DataEntry();
-                    s.Key = "Ch:/Sys";
-                    s.Type = "SysChannel"; // special object
-                    updateEntry(s);
-
-                    addEventDisplay("Connection", "Connected and authorized");
-                    receiver = new Thread(new ThreadStart(ReceiveThread));
-                    receiver.Start();
-                }
-                btnQueryAll.Enabled = true;
-            }
-            else
-            {
-                addEventDisplay("Connection", "Access denied!");
-            }
+            receiver = new Thread(new ThreadStart(ReceiveThread));
+            receiver.Start();
         }
 
-        void OnDeviceInfo(DeviceInfo di)
+        void ParseDeviceInfo(DeviceInfo di)
         {
             addEventDisplay("DeviceInfo", "[" + di.Name + "] " + di.Param + "=>" + di.Value + ", Verb: " + Convert.ToString(di.Verb));
             String Key = "Ch:" + di.Name;
@@ -203,7 +162,7 @@ namespace GvClientAccess
 
         Dictionary<String, DataEntry> EntryMap = new Dictionary<string,DataEntry>();
 
-        void OnDataEntry()
+        void ParseDataEntry()
         {
             try
             {
@@ -285,40 +244,94 @@ namespace GvClientAccess
             }
             EntryMap[ent.Key] = ent;
         }
+
+        void ParseTopLevelXml()
+        {
+            if (reader.Name == "DeviceInfo")
+            {
+                DeviceInfo di = new DeviceInfo();
+                di.Name = reader["Name"];
+                di.Param = reader["Param"];
+                di.Value = reader["Value"];
+                di.Verb = Convert.ToInt32(reader["Verb"]);
+                ParseDeviceInfo(di);
+            }
+            else if (reader.Name == "DataEntry")
+            {
+                ParseDataEntry();
+            }
+        }
         
         void ReceiveThread()
         {
             try
             {
                 Trace.WriteLine("ReceiveThread...");
-                while (reader.Read())
+
+                addEventDisplay("Connection", "Connecting to remote host: " + edRemoteHost.Text + ":" + edPort.Text);
+                client = new TcpClient(edRemoteHost.Text, Convert.ToInt32(edPort.Text));
+                addEventDisplay("Connection", "Connected to remote host: " + edRemoteHost.Text + ":" + edPort.Text);
+                XmlWriterSettings xws = new XmlWriterSettings();
+                xws.OmitXmlDeclaration = true;
+                xws.Encoding = new UTF8Encoding(false);
+                xws.ConformanceLevel = ConformanceLevel.Fragment;
+                writer = XmlWriter.Create(client.GetStream(), xws);
+                writer.WriteStartElement("Login");
+                writer.WriteAttributeString("UserName", "Handshake");
+                writer.WriteAttributeString("Password", "7157d7fa-5f8b-44eb-946c-e05940fa3b0e");
+                writer.WriteAttributeString("Pin", "CxClient");
+                writer.WriteEndElement();
+                writer.Flush();
+
+                XmlReaderSettings xrs = new XmlReaderSettings();
+                xrs.ConformanceLevel = ConformanceLevel.Fragment;
+                reader = XmlReader.Create(client.GetStream(), xrs);
+                reader.Read();
+                Debug.Assert(reader.Name == "LoginResult" && reader["Status"] == "200" && reader["Message"] == "OK");
+                writer.WriteStartElement("InitControlConnection");
+                writer.WriteAttributeString("Cookie", Convert.ToString(DateTime.Now.ToFileTime()));
+                writer.WriteStartElement("Com_LoginRequest");
+                writer.WriteAttributeString("UserName", edUserName.Text);
+                writer.WriteAttributeString("Password", GetSHA1(edPassword.Text));
+                writer.WriteAttributeString("ClientVersion", "1");
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+                writer.Flush();
+
+                reader.Read();
+                if (reader.Name == "UserAccess")
                 {
-                    switch (reader.NodeType)
+                    reader.Skip();
+                    if (reader["AccessDenied"] != "Y")
                     {
-                        case XmlNodeType.Element:
-                            if (reader.Depth == 0)
-                            {
-                                //Trace.WriteLine("Receive element: " + reader.Name);
-                                if (reader.Name == "DeviceInfo")
-                                {
-                                    DeviceInfo di = new DeviceInfo();
-                                    di.Name = reader["Name"];
-                                    di.Param = reader["Param"];
-                                    di.Value = reader["Value"];
-                                    di.Verb = Convert.ToInt32(reader["Verb"]);
-                                    this.Invoke((DeviceInfoDelegate)OnDeviceInfo, di);
-                                }
-                                else if (reader.Name == "DataEntry")
-                                {
-                                    this.Invoke((MyDelegate)OnDataEntry);
-                                }
-                            }
-                            break;
+                        DataEntry s = new DataEntry();
+                        s.Key = "Ch:/Sys";
+                        s.Type = "SysChannel"; // special object
+                        updateEntry(s);
+
+                        addEventDisplay("Connection", "Connected and authorized");
                     }
+                    btnQueryAll.Enabled = true;
+                    while (reader.Read())
+                    {
+                        switch (reader.NodeType)
+                        {
+                            case XmlNodeType.Element:
+                                if (reader.Depth == 0)
+                                {
+                                    this.Invoke((MyDelegate)ParseTopLevelXml);
+                                }
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    addEventDisplay("Connection", "Access denied!");
                 }
                 Trace.WriteLine("ReceiveThread().2");
             }
-            catch(ThreadAbortException err)
+            catch(Exception err)
             {
                 Trace.WriteLine("ReceiveThread() aborted: " + err);
             }
@@ -338,9 +351,9 @@ namespace GvClientAccess
                 {
                     addEventDisplay("Thread", "Waiting thread to terminate...");
                 }
-               receiver.Abort();
-               receiver.Join();
-               receiver = null;
+                receiver.Abort();
+                receiver.Join(500);
+                receiver = null;
             }
             if (client != null)
             {
