@@ -113,6 +113,19 @@
             this.columnHeader16 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader14 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader15 = new System.Windows.Forms.ColumnHeader();
+            this.tbConDbg = new System.Windows.Forms.TabPage();
+            this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.edConDbgRegistry = new System.Windows.Forms.TextBox();
+            this.flowLayoutPanel7 = new System.Windows.Forms.FlowLayoutPanel();
+            this.edDebugPort = new System.Windows.Forms.TextBox();
+            this.btnConDbgEnable = new System.Windows.Forms.Button();
+            this.btnConDbgDisable = new System.Windows.Forms.Button();
+            this.flowLayoutPanel8 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnConDbgTest = new System.Windows.Forms.Button();
+            this.btnConnectConDbg = new System.Windows.Forms.Button();
+            this.btnTestOverlay = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
@@ -138,6 +151,10 @@
             this.tabControl3.SuspendLayout();
             this.tabPage6.SuspendLayout();
             this.tbUserlog.SuspendLayout();
+            this.tbConDbg.SuspendLayout();
+            this.tableLayoutPanel4.SuspendLayout();
+            this.flowLayoutPanel7.SuspendLayout();
+            this.flowLayoutPanel8.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -363,6 +380,7 @@
             this.tcMain.Controls.Add(this.tabPage2);
             this.tcMain.Controls.Add(this.tbMediaQuery);
             this.tcMain.Controls.Add(this.tbUserlog);
+            this.tcMain.Controls.Add(this.tbConDbg);
             this.tcMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcMain.Location = new System.Drawing.Point(0, 0);
             this.tcMain.Name = "tcMain";
@@ -491,7 +509,7 @@
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage4.Size = new System.Drawing.Size(372, 353);
+            this.tabPage4.Size = new System.Drawing.Size(367, 352);
             this.tabPage4.TabIndex = 1;
             this.tabPage4.Text = "CameraSetup";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -530,30 +548,30 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 80F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(366, 347);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(361, 346);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // edChannel
             // 
             this.edChannel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.edChannel.Location = new System.Drawing.Point(99, 203);
+            this.edChannel.Location = new System.Drawing.Point(98, 202);
             this.edChannel.Name = "edChannel";
-            this.edChannel.Size = new System.Drawing.Size(264, 22);
+            this.edChannel.Size = new System.Drawing.Size(260, 22);
             this.edChannel.TabIndex = 0;
             // 
             // edDomainName
             // 
             this.edDomainName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.edDomainName.Location = new System.Drawing.Point(99, 130);
+            this.edDomainName.Location = new System.Drawing.Point(98, 129);
             this.edDomainName.Name = "edDomainName";
-            this.edDomainName.Size = new System.Drawing.Size(264, 22);
+            this.edDomainName.Size = new System.Drawing.Size(260, 22);
             this.edDomainName.TabIndex = 3;
             // 
             // label13
             // 
             this.label13.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(24, 135);
+            this.label13.Location = new System.Drawing.Point(23, 134);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(69, 12);
             this.label13.TabIndex = 8;
@@ -565,9 +583,9 @@
             this.flowLayoutPanel5.Controls.Add(this.label12);
             this.flowLayoutPanel5.Controls.Add(this.edCamPassword);
             this.flowLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel5.Location = new System.Drawing.Point(99, 235);
+            this.flowLayoutPanel5.Location = new System.Drawing.Point(98, 234);
             this.flowLayoutPanel5.Name = "flowLayoutPanel5";
-            this.flowLayoutPanel5.Size = new System.Drawing.Size(264, 28);
+            this.flowLayoutPanel5.Size = new System.Drawing.Size(260, 28);
             this.flowLayoutPanel5.TabIndex = 4;
             // 
             // edCamUserName
@@ -591,7 +609,7 @@
             // edCamPassword
             // 
             this.edCamPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.edCamPassword.Location = new System.Drawing.Point(168, 3);
+            this.edCamPassword.Location = new System.Drawing.Point(3, 31);
             this.edCamPassword.Name = "edCamPassword";
             this.edCamPassword.PasswordChar = '*';
             this.edCamPassword.Size = new System.Drawing.Size(91, 22);
@@ -601,7 +619,7 @@
             // 
             this.label11.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(40, 243);
+            this.label11.Location = new System.Drawing.Point(39, 242);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(53, 12);
             this.label11.TabIndex = 6;
@@ -610,16 +628,16 @@
             // edDriver
             // 
             this.edDriver.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.edDriver.Location = new System.Drawing.Point(99, 32);
+            this.edDriver.Location = new System.Drawing.Point(98, 31);
             this.edDriver.Name = "edDriver";
-            this.edDriver.Size = new System.Drawing.Size(264, 22);
+            this.edDriver.Size = new System.Drawing.Size(260, 22);
             this.edDriver.TabIndex = 1;
             // 
             // label6
             // 
             this.label6.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(19, 8);
+            this.label6.Location = new System.Drawing.Point(18, 8);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(74, 12);
             this.label6.TabIndex = 0;
@@ -628,16 +646,16 @@
             // edChannelName
             // 
             this.edChannelName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.edChannelName.Location = new System.Drawing.Point(99, 3);
+            this.edChannelName.Location = new System.Drawing.Point(98, 3);
             this.edChannelName.Name = "edChannelName";
-            this.edChannelName.Size = new System.Drawing.Size(264, 22);
+            this.edChannelName.Size = new System.Drawing.Size(260, 22);
             this.edChannelName.TabIndex = 0;
             // 
             // label7
             // 
             this.label7.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(58, 37);
+            this.label7.Location = new System.Drawing.Point(57, 36);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(35, 12);
             this.label7.TabIndex = 0;
@@ -647,7 +665,7 @@
             // 
             this.label8.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(35, 85);
+            this.label8.Location = new System.Drawing.Point(34, 84);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(58, 12);
             this.label8.TabIndex = 3;
@@ -658,17 +676,17 @@
             this.edDescription.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.edDescription.Location = new System.Drawing.Point(99, 61);
+            this.edDescription.Location = new System.Drawing.Point(98, 60);
             this.edDescription.Multiline = true;
             this.edDescription.Name = "edDescription";
-            this.edDescription.Size = new System.Drawing.Size(264, 61);
+            this.edDescription.Size = new System.Drawing.Size(260, 61);
             this.edDescription.TabIndex = 2;
             // 
             // label9
             // 
             this.label9.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(38, 171);
+            this.label9.Location = new System.Drawing.Point(37, 170);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(55, 12);
             this.label9.TabIndex = 4;
@@ -680,9 +698,9 @@
             this.flowLayoutPanel4.Controls.Add(this.label10);
             this.flowLayoutPanel4.Controls.Add(this.edIPPort);
             this.flowLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(99, 160);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(98, 159);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(264, 34);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(260, 34);
             this.flowLayoutPanel4.TabIndex = 5;
             // 
             // edIPAddress
@@ -717,9 +735,9 @@
             this.flowLayoutPanel6.Controls.Add(this.edCamDisabled);
             this.flowLayoutPanel6.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel6.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel6.Location = new System.Drawing.Point(99, 269);
+            this.flowLayoutPanel6.Location = new System.Drawing.Point(98, 268);
             this.flowLayoutPanel6.Name = "flowLayoutPanel6";
-            this.flowLayoutPanel6.Size = new System.Drawing.Size(264, 75);
+            this.flowLayoutPanel6.Size = new System.Drawing.Size(260, 75);
             this.flowLayoutPanel6.TabIndex = 9;
             // 
             // edUncondRec
@@ -746,9 +764,9 @@
             // 
             this.btnUpdateChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnUpdateChannel.Location = new System.Drawing.Point(3, 321);
+            this.btnUpdateChannel.Location = new System.Drawing.Point(3, 320);
             this.btnUpdateChannel.Name = "btnUpdateChannel";
-            this.btnUpdateChannel.Size = new System.Drawing.Size(90, 23);
+            this.btnUpdateChannel.Size = new System.Drawing.Size(89, 23);
             this.btnUpdateChannel.TabIndex = 10;
             this.btnUpdateChannel.Text = "Update!";
             this.btnUpdateChannel.UseVisualStyleBackColor = true;
@@ -758,7 +776,7 @@
             // 
             this.label14.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(49, 208);
+            this.label14.Location = new System.Drawing.Point(48, 207);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(44, 12);
             this.label14.TabIndex = 4;
@@ -1013,6 +1031,146 @@
             this.columnHeader15.Text = "Symbols";
             this.columnHeader15.Width = 354;
             // 
+            // tbConDbg
+            // 
+            this.tbConDbg.Controls.Add(this.tableLayoutPanel4);
+            this.tbConDbg.Location = new System.Drawing.Point(4, 22);
+            this.tbConDbg.Name = "tbConDbg";
+            this.tbConDbg.Padding = new System.Windows.Forms.Padding(3);
+            this.tbConDbg.Size = new System.Drawing.Size(670, 384);
+            this.tbConDbg.TabIndex = 4;
+            this.tbConDbg.Text = "ConDbg";
+            this.tbConDbg.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel4
+            // 
+            this.tableLayoutPanel4.ColumnCount = 2;
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20.48193F));
+            this.tableLayoutPanel4.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 79.51807F));
+            this.tableLayoutPanel4.Controls.Add(this.edConDbgRegistry, 1, 1);
+            this.tableLayoutPanel4.Controls.Add(this.label20, 0, 1);
+            this.tableLayoutPanel4.Controls.Add(this.label19, 0, 0);
+            this.tableLayoutPanel4.Controls.Add(this.flowLayoutPanel7, 1, 0);
+            this.tableLayoutPanel4.Controls.Add(this.flowLayoutPanel8, 1, 2);
+            this.tableLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel4.Location = new System.Drawing.Point(3, 3);
+            this.tableLayoutPanel4.Name = "tableLayoutPanel4";
+            this.tableLayoutPanel4.RowCount = 3;
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 271F));
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(664, 378);
+            this.tableLayoutPanel4.TabIndex = 1;
+            this.tableLayoutPanel4.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel4_Paint);
+            // 
+            // label19
+            // 
+            this.label19.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(75, 11);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(58, 12);
+            this.label19.TabIndex = 3;
+            this.label19.Text = "Debug Port";
+            // 
+            // label20
+            // 
+            this.label20.Anchor = System.Windows.Forms.AnchorStyles.Right;
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(11, 42);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(122, 12);
+            this.label20.TabIndex = 4;
+            this.label20.Text = "ConDbg Registry Setting";
+            // 
+            // edConDbgRegistry
+            // 
+            this.edConDbgRegistry.Location = new System.Drawing.Point(139, 37);
+            this.edConDbgRegistry.Name = "edConDbgRegistry";
+            this.edConDbgRegistry.ReadOnly = true;
+            this.edConDbgRegistry.Size = new System.Drawing.Size(339, 22);
+            this.edConDbgRegistry.TabIndex = 5;
+            // 
+            // flowLayoutPanel7
+            // 
+            this.flowLayoutPanel7.Controls.Add(this.edDebugPort);
+            this.flowLayoutPanel7.Controls.Add(this.btnConDbgEnable);
+            this.flowLayoutPanel7.Controls.Add(this.btnConDbgDisable);
+            this.flowLayoutPanel7.Location = new System.Drawing.Point(139, 3);
+            this.flowLayoutPanel7.Name = "flowLayoutPanel7";
+            this.flowLayoutPanel7.Size = new System.Drawing.Size(496, 28);
+            this.flowLayoutPanel7.TabIndex = 6;
+            // 
+            // edDebugPort
+            // 
+            this.edDebugPort.Location = new System.Drawing.Point(3, 3);
+            this.edDebugPort.Name = "edDebugPort";
+            this.edDebugPort.Size = new System.Drawing.Size(97, 22);
+            this.edDebugPort.TabIndex = 3;
+            this.edDebugPort.Text = "54264";
+            // 
+            // btnConDbgEnable
+            // 
+            this.btnConDbgEnable.Location = new System.Drawing.Point(106, 3);
+            this.btnConDbgEnable.Name = "btnConDbgEnable";
+            this.btnConDbgEnable.Size = new System.Drawing.Size(75, 23);
+            this.btnConDbgEnable.TabIndex = 4;
+            this.btnConDbgEnable.Text = "Enable";
+            this.btnConDbgEnable.UseVisualStyleBackColor = true;
+            this.btnConDbgEnable.Click += new System.EventHandler(this.btnConDbgEnable_Click);
+            // 
+            // btnConDbgDisable
+            // 
+            this.btnConDbgDisable.Location = new System.Drawing.Point(187, 3);
+            this.btnConDbgDisable.Name = "btnConDbgDisable";
+            this.btnConDbgDisable.Size = new System.Drawing.Size(75, 23);
+            this.btnConDbgDisable.TabIndex = 5;
+            this.btnConDbgDisable.Text = "Disable";
+            this.btnConDbgDisable.UseVisualStyleBackColor = true;
+            this.btnConDbgDisable.Click += new System.EventHandler(this.btnConDbgDisable_Click);
+            // 
+            // flowLayoutPanel8
+            // 
+            this.flowLayoutPanel8.Controls.Add(this.btnConnectConDbg);
+            this.flowLayoutPanel8.Controls.Add(this.btnConDbgTest);
+            this.flowLayoutPanel8.Controls.Add(this.btnTestOverlay);
+            this.flowLayoutPanel8.Location = new System.Drawing.Point(139, 65);
+            this.flowLayoutPanel8.Name = "flowLayoutPanel8";
+            this.flowLayoutPanel8.Size = new System.Drawing.Size(522, 100);
+            this.flowLayoutPanel8.TabIndex = 7;
+            // 
+            // btnConDbgTest
+            // 
+            this.btnConDbgTest.Enabled = false;
+            this.btnConDbgTest.Location = new System.Drawing.Point(84, 3);
+            this.btnConDbgTest.Name = "btnConDbgTest";
+            this.btnConDbgTest.Size = new System.Drawing.Size(83, 23);
+            this.btnConDbgTest.TabIndex = 2;
+            this.btnConDbgTest.Text = "Test Blinking";
+            this.btnConDbgTest.UseVisualStyleBackColor = true;
+            this.btnConDbgTest.Click += new System.EventHandler(this.btnConDbgTest_Click);
+            // 
+            // btnConnectConDbg
+            // 
+            this.btnConnectConDbg.Location = new System.Drawing.Point(3, 3);
+            this.btnConnectConDbg.Name = "btnConnectConDbg";
+            this.btnConnectConDbg.Size = new System.Drawing.Size(75, 23);
+            this.btnConnectConDbg.TabIndex = 3;
+            this.btnConnectConDbg.Text = "Connect";
+            this.btnConnectConDbg.UseVisualStyleBackColor = true;
+            this.btnConnectConDbg.Click += new System.EventHandler(this.btnConnectConDbg_Click);
+            // 
+            // btnTestOverlay
+            // 
+            this.btnTestOverlay.Enabled = false;
+            this.btnTestOverlay.Location = new System.Drawing.Point(173, 3);
+            this.btnTestOverlay.Name = "btnTestOverlay";
+            this.btnTestOverlay.Size = new System.Drawing.Size(89, 23);
+            this.btnTestOverlay.TabIndex = 4;
+            this.btnTestOverlay.Text = "Test Overlay";
+            this.btnTestOverlay.UseVisualStyleBackColor = true;
+            this.btnTestOverlay.Click += new System.EventHandler(this.btnTestOverlay_Click);
+            // 
             // GvClientForm
             // 
             this.AcceptButton = this.btnConnect;
@@ -1058,6 +1216,12 @@
             this.tabControl3.ResumeLayout(false);
             this.tabPage6.ResumeLayout(false);
             this.tbUserlog.ResumeLayout(false);
+            this.tbConDbg.ResumeLayout(false);
+            this.tableLayoutPanel4.ResumeLayout(false);
+            this.tableLayoutPanel4.PerformLayout();
+            this.flowLayoutPanel7.ResumeLayout(false);
+            this.flowLayoutPanel7.PerformLayout();
+            this.flowLayoutPanel8.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1149,6 +1313,19 @@
         private System.Windows.Forms.ColumnHeader columnHeader14;
         private System.Windows.Forms.ColumnHeader columnHeader15;
         private System.Windows.Forms.ColumnHeader columnHeader16;
+        private System.Windows.Forms.TabPage tbConDbg;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TextBox edConDbgRegistry;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel7;
+        private System.Windows.Forms.TextBox edDebugPort;
+        private System.Windows.Forms.Button btnConDbgEnable;
+        private System.Windows.Forms.Button btnConDbgDisable;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel8;
+        private System.Windows.Forms.Button btnConnectConDbg;
+        private System.Windows.Forms.Button btnConDbgTest;
+        private System.Windows.Forms.Button btnTestOverlay;
 
     }
 }

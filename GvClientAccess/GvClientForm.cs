@@ -48,6 +48,7 @@ namespace GvClientAccess
             edPort.Text = rkey.GetValue("Port", "3557").ToString();
             edUserName.Text = rkey.GetValue("UserName", "admin").ToString();
             edPassword.Text = rkey.GetValue("Password", "1234").ToString();
+            edDebugPort.Text = rkey.GetValue("DebugPort", "54323").ToString();
         }
 
         private static string GetSHA1(string text)
@@ -510,6 +511,11 @@ namespace GvClientAccess
                 mqclient.Close();
                 mqclient = null;
             }
+            if (condbg != null)
+            {
+                condbg.closeAll();
+                condbg = null;
+            }
             if (show)
             {
                 lvChannels.Items.Clear();
@@ -615,6 +621,31 @@ namespace GvClientAccess
                 {
                     edQueryChannel.SelectedIndex = 0;
                 }
+            }
+            else if (e.TabPage == tbConDbg)
+            {
+                updateConDbgRegistryGUI();
+            }
+        }
+
+        void updateConDbgRegistryGUI()
+        {
+            RegistryKey rk = Registry.CurrentUser.OpenSubKey("Software\\GeniusVision\\NVR\\LocalConsole");
+            object value = null;
+            if (rk != null)
+            {
+                value = rk.GetValue("ConDbg");
+            }
+            edConDbgRegistry.Text = Convert.ToString(value);
+            if (value == null)
+            {
+                btnConDbgDisable.Enabled = false;
+                btnConDbgEnable.Enabled = true;
+            }
+            else
+            {
+                btnConDbgDisable.Enabled = true;
+                btnConDbgEnable.Enabled = false;
             }
         }
 
@@ -736,6 +767,233 @@ namespace GvClientAccess
             {
                 Trace.WriteLine("ParseTopLevelXmlMQ(): Unhandled top-level command: " + mqreader.Name);
             }
+        }
+
+        class ConDbgConnection
+        {
+            Control theControl;
+            Thread thread;
+            TcpClient client;
+            XmlReader reader;
+            XmlWriter writer;
+            int Port;
+
+            public ConDbgConnection(Control theControl_, int Port_)
+            {
+                theControl = theControl_;
+                Port = Port_;
+            }
+
+            public void Connect()
+            {
+                thread = new Thread(new ThreadStart(ConDbgThread));
+                thread.Start();
+            }
+
+            void ParseTopLevelXmlConDbg()
+            {
+            }
+
+            public void closeAll()
+            {
+                if (thread != null)
+                {
+                    thread.Abort();
+                    thread.Join(500);
+                    thread = null;
+                }
+                if (client != null)
+                {
+                    client.Close();
+                    client = null;
+                }
+            }
+
+            public void Test1()
+            {
+                writer.WriteStartElement("ConfigureDefaultWindow");
+                writer.WriteAttributeString("Name", "Main");
+                writer.WriteStartElement("ShowWindow");
+                writer.WriteAttributeString("Show", "N");
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+                writer.Flush();
+                Trace.WriteLine("ConDbgThread.2");
+                Thread.Sleep(1000);
+                writer.WriteStartElement("ConfigureDefaultWindow");
+                writer.WriteAttributeString("Name", "Main");
+                writer.WriteStartElement("ShowWindow");
+                writer.WriteAttributeString("Show", "Y");
+                writer.WriteEndElement();
+                writer.WriteEndElement();
+                writer.Flush();
+            }
+
+            public void Test2_()
+            {
+                writer.WriteStartElement("ConfigureDefaultWindow");
+                writer.WriteAttributeString("Name", "MyPattern.Player1.Player");
+                {
+                    writer.WriteStartElement("ShowWindow");
+                    writer.WriteAttributeString("Show", "N");
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+                writer.Flush();
+                Thread.Sleep(1000);
+
+                writer.WriteStartElement("ConfigureDefaultWindow");
+                writer.WriteAttributeString("Name", "MyPattern.Player1.Player");
+                {
+                    writer.WriteStartElement("ShowWindow");
+                    writer.WriteAttributeString("Show", "Y");
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+                writer.Flush();
+                Thread.Sleep(1000);
+            }
+
+            public void Test2()
+            {
+                writer.WriteStartElement("ConfigureDefaultWindow");
+                writer.WriteAttributeString("Name", "MyPattern.Player1.RndArea");
+                {
+                    writer.WriteStartElement("ConfigureDirectXVideo");
+                    {
+                        writer.WriteStartElement("ConfigureGraphics");
+                        writer.WriteAttributeString("Name", "0");
+                        {
+                            writer.WriteStartElement("ConfigureGraphics");
+                            writer.WriteAttributeString("Name", "FG");
+                            {
+                                writer.WriteStartElement("Rectangle");
+                                writer.WriteAttributeString("Name", "R01"); // user-assigned name
+                                writer.WriteAttributeString("Left", "10");
+                                writer.WriteAttributeString("Top", "10");
+                                writer.WriteAttributeString("Right", "100");
+                                writer.WriteAttributeString("Bottom", "100");
+                                writer.WriteAttributeString("Style", "ER_Common"); // a predefined style name
+                                writer.WriteEndElement();
+
+                                writer.WriteStartElement("TextOut");
+                                writer.WriteAttributeString("Name", "T01"); // user-assigned name
+                                writer.WriteAttributeString("X", "50");
+                                writer.WriteAttributeString("Y", "50");
+                                writer.WriteAttributeString("Text", "X00,Y00,Z00");
+                                writer.WriteAttributeString("Style", "Player.State"); // a predefined style name
+                                writer.WriteEndElement();
+                            }
+                            writer.WriteEndElement();
+                        }
+                        writer.WriteEndElement();
+                    }
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+                writer.Flush();
+            }
+
+            void ConDbgThread()
+            {
+                try
+                {
+                    Trace.WriteLine("ConDbgThread: started");
+                    client = new TcpClient("127.0.0.1", Port);
+                    XmlWriterSettings xws = new XmlWriterSettings();
+                    xws.OmitXmlDeclaration = true;
+                    xws.Encoding = new UTF8Encoding(false);
+                    xws.ConformanceLevel = ConformanceLevel.Fragment;
+                    writer = XmlWriter.Create(client.GetStream(), xws);
+                    writer.WriteStartElement("Login");
+                    writer.WriteAttributeString("Pin", "ConDbg");
+                    writer.WriteEndElement();
+                    writer.Flush();
+
+                    Trace.WriteLine("ConDbgThread.1");
+                    XmlReaderSettings xrs = new XmlReaderSettings();
+                    xrs.ConformanceLevel = ConformanceLevel.Fragment;
+                    reader = XmlReader.Create(client.GetStream(), xrs);
+                    Trace.WriteLine("ConDbgThread.2");
+
+                    while (reader.Read())
+                    {
+                        Trace.WriteLine("ConDbgThread.3:" + Convert.ToString(reader.NodeType));
+                        switch (reader.NodeType)
+                        {
+                            case XmlNodeType.Element:
+                                if (reader.Depth == 0)
+                                {
+                                    theControl.Invoke((ThreadStart)ParseTopLevelXmlConDbg);
+                                }
+                                break;
+                        }
+                    }
+                }
+                catch (Exception err)
+                {
+                    Trace.WriteLine("ConDbgThread: terminated: " + err);
+                }
+            }
+        }
+
+        ConDbgConnection condbg;
+
+        private void tableLayoutPanel4_Paint(object sender, PaintEventArgs e)
+        {
+        }
+
+        private void btnConDbgEnable_Click(object sender, EventArgs e)
+        {
+            rkey.SetValue("DebugPort", edDebugPort.Text);
+
+            RegistryKey rk = Registry.CurrentUser.CreateSubKey("Software\\GeniusVision\\NVR\\LocalConsole");
+            rk.SetValue("ConDbg", "127.0.0.1:" + edDebugPort.Text);
+            updateConDbgRegistryGUI();
+        }
+
+        private void btnConDbgDisable_Click(object sender, EventArgs e)
+        {
+            RegistryKey rk = Registry.CurrentUser.CreateSubKey("Software\\GeniusVision\\NVR\\LocalConsole");
+            rk.DeleteValue("ConDbg");
+            updateConDbgRegistryGUI();
+            resetConDbg();
+        }
+
+        void resetConDbg()
+        {
+            if (condbg != null)
+            {
+                condbg.closeAll();
+                condbg = null;
+            }
+        }
+
+        void checkEnableConDbg()
+        {
+            if (condbg == null)
+            {
+                condbg = new ConDbgConnection(this, Convert.ToInt32(edDebugPort.Text));
+                condbg.Connect();
+            }
+        }
+
+        private void btnConnectConDbg_Click(object sender, EventArgs e)
+        {
+            resetConDbg();
+            checkEnableConDbg();
+            btnConDbgTest.Enabled = true;
+            btnTestOverlay.Enabled = true;
+        }
+
+        private void btnConDbgTest_Click(object sender, EventArgs e)
+        {
+            condbg.Test1();
+        }
+
+        private void btnTestOverlay_Click(object sender, EventArgs e)
+        {
+            condbg.Test2();
         }
     }
 }
