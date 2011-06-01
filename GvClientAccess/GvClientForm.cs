@@ -123,6 +123,9 @@ namespace GvClientAccess
             public String Key;
             public String Type;
             public bool IsDeleted;
+            public long TimeCreated;
+            public long TimeUpdated;
+            public String SortKey;
 
             // Type == GV_OpenChannel
             public String ChannelName;
@@ -130,6 +133,12 @@ namespace GvClientAccess
             public String Description;
             public String DomainName, IPAddress, IPPort, Channel, UserName, Password, Options, AudioInput, VideoInput;
             public bool UncondRec, Disabled;
+            
+            // Type == GV_Userlog
+            public long UserlogTime; // time of initial log
+            public String UserlogType;
+            public String UserlogMessageRid;
+            public Dictionary<String, String> UserlogSymbols;
 
             public ListViewItem lvi;
 
@@ -158,6 +167,15 @@ namespace GvClientAccess
                     diMap = newMap; // replace old map
                 }
             }
+
+            internal void AddUserLogSymbol(string name, string value)
+            {
+                if (UserlogSymbols == null)
+                {
+                    UserlogSymbols = new Dictionary<string, string>();
+                }
+                UserlogSymbols[name] = value;
+            }
         }
 
         Dictionary<String, DataEntry> EntryMap = new Dictionary<string,DataEntry>();
@@ -170,6 +188,9 @@ namespace GvClientAccess
                 ent.Key = reader["Key2"];
                 ent.Type = reader["Type"];
                 ent.IsDeleted = reader["IsDeleted"] == "Y";
+                ent.TimeCreated = Convert.ToInt64(reader["TimeCreated"]);
+                ent.TimeUpdated = Convert.ToInt64(reader["TimeUpdated"]);
+                ent.SortKey = reader["SortKey"];
                 //ent.Xml = reader.ReadOuterXml();
 
                 if (ent.Type == "GV_OpenChannel")
@@ -201,6 +222,36 @@ namespace GvClientAccess
                         {
                             ent.UserName = reader["UserName"];
                             ent.Password = reader["Password"];
+                        }
+                    }
+                }
+                else if (ent.Type == "GV_Userlog")
+                {
+                    reader.ReadToDescendant("Userlog");
+                    ent.UserlogTime = Convert.ToInt64(reader["Time"]);
+                    ent.UserlogType = reader["Type"];
+                    bool exitLoop = false;
+                    while(!exitLoop && reader.Read())
+                    {
+                        switch (reader.NodeType)
+                        {
+                            case XmlNodeType.Element:
+                                if (reader.Name == "Com_EventDescription")
+                                {
+                                    ent.UserlogMessageRid = reader["MessageRid"];
+                                }
+                                else if (reader.Name == "Com_ReplaceStr")
+                                {
+                                    ent.AddUserLogSymbol(reader["Name"], reader["Value"]);
+                                }
+                                break;
+
+                            case XmlNodeType.EndElement:
+                                if (reader.Name == "Userlog")
+                                {
+                                    exitLoop = true;
+                                }
+                                break;
                         }
                     }
                 }
@@ -241,6 +292,26 @@ namespace GvClientAccess
             {
                 ent.lvi = lvChannels.Items.Add("(System)");
                 ent.lvi.Tag = ent;
+            }
+            else if (ent.Type == "GV_Userlog")
+            {
+                ent.lvi = lvUserlog.Items.Add(humanTime(ent.UserlogTime));
+                ent.lvi.SubItems.Add(ent.UserlogType);
+                ent.lvi.SubItems.Add(ent.UserlogMessageRid);
+                String str = "";
+                if (ent.UserlogSymbols != null)
+                {
+                    foreach (String s in ent.UserlogSymbols.Keys)
+                    {
+                        if (str.Length > 0)
+                        {
+                            str += ", ";
+                        }
+                        String value = ent.UserlogSymbols[s];
+                        str += s + "=>" + value;
+                    }
+                }
+                ent.lvi.SubItems.Add(str);
             }
             EntryMap[ent.Key] = ent;
         }
@@ -443,6 +514,7 @@ namespace GvClientAccess
             {
                 lvChannels.Items.Clear();
                 lvDeviceInfo.Items.Clear();
+                lvUserlog.Items.Clear();
             }
             EntryMap.Clear();
         }
@@ -596,6 +668,11 @@ namespace GvClientAccess
                     }
                 }
             }
+        }
+
+        String humanTime(long p)
+        {
+            return DateTime.FromFileTimeUtc(p).ToString();
         }
 
         String humanTime(String str)
