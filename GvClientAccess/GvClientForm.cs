@@ -264,8 +264,15 @@ namespace GvClientAccess
             }
         }
 
+        delegate void UpdateEntryDelegate(DataEntry ent);
+
         void updateEntry(DataEntry ent)
         {
+            if (InvokeRequired)
+            {
+                Invoke((UpdateEntryDelegate)updateEntry, ent);
+                return;
+            }
             DataEntry old;
             if (EntryMap.ContainsKey(ent.Key))
             {
@@ -343,7 +350,14 @@ namespace GvClientAccess
         XmlWriter mqwriter;
         XmlReader mqreader;
         Thread mqthread;
-        
+
+        public delegate void EnableQueryButton(bool isenable);
+
+        private void EnableQButton(bool isenable)
+        {
+            btnQueryAll.Enabled = isenable;
+        }
+
         void ReceiveThread()
         {
             try
@@ -413,8 +427,8 @@ namespace GvClientAccess
                         mqthread = new Thread(new ThreadStart(MQReadThread));
                         mqthread.Start();
                     }
-                    
-                    btnQueryAll.Enabled = true;
+
+                    this.Invoke(new EnableQueryButton(EnableQButton), new object[1] { true });
                     while (reader.Read())
                     {
                         switch (reader.NodeType)
